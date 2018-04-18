@@ -8,7 +8,7 @@
 # Copyright:   (c) lukea_000 2013
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
-import sys, pygame
+import sys, pygame, pickle
 from pygame.locals import *
 
 pygame.init()
@@ -66,14 +66,17 @@ class Crosshair(object):
         self.result.append(list(inputTuple)+[self.crossrect.centerx,self.crossrect.centery])
 
     def write(self):
-        fo = open("1700wxoffsetyoffsetxy.csv", "w")
-        for line in self.result:
-            print line
-            result = ""
-            for number in line:
-                result += str(number) + str(',')
-            fo.write(result + "\n")
-        fo.close()
+        # fo = open("1700wxoffsetyoffsetxy.csv", "w")
+        # for line in self.result:
+        #     print line
+        #     result = ""
+        #     for number in line:
+        #         result += str(number) + str(',')
+        #     fo.write(result + "\n")
+        # fo.close()
+        with open("1700wxoffsetyoffsetxy.csv", "wb") as fp:   #Pickling
+            pickle.dump(self.result, fp)
+	
 
     #collects data, returns true if done looping
     def loop(self):
@@ -114,6 +117,12 @@ class Crosshair(object):
                 if event.key == pygame.K_ESCAPE:
                     self.userWantsToQuit = True
         return False
+    
+    def checkEsc(self):
+	for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    self.userWantsToQuit = True
 
     def close(self):
         pygame.display.quit()

@@ -1,4 +1,4 @@
-import cv2
+import cv2, pickle
 import numpy as np
 import ClassyVirtualReferencePoint as ClassyVirtualReferencePoint
 import ransac
@@ -14,7 +14,8 @@ import ransac
 # the program will learn the correspondence and start drawing a blue blur
 # where you look. It's important to keep your head still (in position AND angle)
 # or it won't work.
-doTraining = True
+doTraining = False
+runEyeTrack = True
 
 
 
@@ -713,12 +714,49 @@ def mainForTraining():
     finally:
         vc.release() #close the camera
     
+def mainEyeTrack():
+    import pygamestuff
+    crosshair = pygamestuff.Crosshair([7, 2], quadratic = False)
+    #crosshair.result = np.genfromtxt('1700wxoffsetyoffsetxy.csv',delimiter=',')
+    with open("1700wxoffsetyoffsetxy.csv", "rb") as fp:   # Unpickling
+        crosshair.result = pickle.load(fp)
+    vc = cv2.VideoCapture(0) # Initialize the default camera
+    if vc.isOpened(): # try to get the first frame
+        (readSuccessful, frame) = vc.read()
+    else:
+        raise(Exception("failed to open camera."))
+        return
+    HT = None
+    try:
+        while readSuccessful and not crosshair.userWantsToQuit:
+            crosshair.checkEsc()
+            crosshair.clearEvents()
+            pupilOffsetXYList = getOffset(frame, allowDebugDisplay=False)
+            if pupilOffsetXYList is not None: #If we got eyes, check for a click. Else, wait until we do.
+		print "Found eyes"
+                crosshair.remove()
+                resultXYpxpy =np.array(crosshair.result)
+                features = getFeatures(resultXYpxpy[:,:-2])
+                featuresAndLabels = np.concatenate( (features, resultXYpxpy[:,-2:] ) , axis=1)
+                HT = RANSACFitTransformation(featuresAndLabels)
+		print HT
+                if HT is not None: # draw predicted eye position
+		            print "PREDICTING EYE POSITION"
+                    currentFeatures =getFeatures( np.array( (pupilOffsetXYList[0], pupilOffsetXYList[1]) ))
+                    gazeCoords = currentFeatures.dot(HT)
+                    crosshair.drawCrossAt( (gazeCoords[0,0], gazeCoords[0,1]) )
+            readSuccessful, frame = vc.read()
+    
+        crosshair.close()
 
-
+    finally:
+        vc.release() #close the camera
 
 
 if __name__ == '__main__':
     if doTraining:
         mainForTraining()
+    elif runEyeTrack:
+	mainEyeTrack()
     else:
         main()
