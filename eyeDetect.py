@@ -2,26 +2,7 @@ import cv2, pickle
 import numpy as np
 import ClassyVirtualReferencePoint as ClassyVirtualReferencePoint
 import ransac
-
-# set doTraining = False to display debug graphics:
-# You should do this first. There should be a green line from your
-# forehead to one pupil; the end of the line is the estimate of pupil position. The blue
-# circles should generally track your pupils, though less reliably than the green line.
-# If performance is bad, you can tweak the "TUNABLE PARAMETER" lines. (This is a big
-# area where improvement is needed; probably some learning of parameters.)
-# Set True to run the main program:
-# You click where you're looking, and, after around 10-20 such clicks,
-# the program will learn the correspondence and start drawing a blue blur
-# where you look. It's important to keep your head still (in position AND angle)
-# or it won't work.
-doTraining = False
-runEyeTrack = True
-
-
-
-
-
-
+from datetime import datetime
 
 def featureCenter(f):
     return (.5*(f.mExtents[0]+f.mExtents[1]),.5*(f.mExtents[2]+f.mExtents[3]) )
@@ -728,6 +709,7 @@ def mainEyeTrack():
         return
     HT = None
     try:
+	file = open("collectedData.txt", "w")
         while readSuccessful and not crosshair.userWantsToQuit:
             crosshair.checkEsc()
             crosshair.clearEvents()
@@ -741,22 +723,33 @@ def mainEyeTrack():
                 HT = RANSACFitTransformation(featuresAndLabels)
 		print HT
                 if HT is not None: # draw predicted eye position
-		            print "PREDICTING EYE POSITION"
+		    print "PREDICTING EYE POSITION"
                     currentFeatures =getFeatures( np.array( (pupilOffsetXYList[0], pupilOffsetXYList[1]) ))
                     gazeCoords = currentFeatures.dot(HT)
                     crosshair.drawCrossAt( (gazeCoords[0,0], gazeCoords[0,1]) )
+		    naive_dt = datetime.now()
+		    file.write("Gaze Coordinates: "+ str(gazeCoords[0,0]) + ", " + str(gazeCoords[0,1]) + " " + str(naive_dt) + "\n")
             readSuccessful, frame = vc.read()
     
         crosshair.close()
+	file.close()
 
     finally:
         vc.release() #close the camera
 
 
 if __name__ == '__main__':
-    if doTraining:
-        mainForTraining()
-    elif runEyeTrack:
-	mainEyeTrack()
-    else:
-        main()
+	print "Welcome to Group 1's eye detection software!"
+	print "Developed by: Peter Brine, Sam Fishman, and Bryan Jimenez-Rojas\n"
+	print "To run main program enter 1"
+	print "To run training program enter 2"
+	print "To run eye detection calibration enter 3"
+	choice = int(raw_input("Enter Choice: "))
+	if choice == 1:
+		mainEyeTrack()
+	elif choice == 2:
+		mainForTraining()
+	elif choice == 3:
+		main()
+	else:
+		print "Invalid choice"
