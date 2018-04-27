@@ -1,0 +1,2 @@
+model_checkpoint_path: "/home/sam/Desktop/EE551-Group1/emotion-recognition-neural-networks/data/Gudi_model_100_epochs_20000_faces"
+all_model_checkpoint_paths: "/home/sam/Desktop/EE551-Group1/emotion-recognition-neural-networks/data/Gudi_model_100_epochs_20000_faces"
