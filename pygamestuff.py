@@ -113,16 +113,14 @@ class Crosshair(object):
                 self.crossrect.center = pos
                 self.draw()
                 return True
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    self.userWantsToQuit = True
+            elif event.type == QUIT:
+               self.userWantsToQuit = True
         return False
     
     def checkEsc(self):
 	for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    self.userWantsToQuit = True
+            if event.type == QUIT:
+               self.userWantsToQuit = True
 
     def close(self):
         pygame.display.quit()

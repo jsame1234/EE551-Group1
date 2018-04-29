@@ -3,6 +3,7 @@ import numpy as np
 import ClassyVirtualReferencePoint as ClassyVirtualReferencePoint
 import ransac
 from datetime import datetime
+import sys
 
 def featureCenter(f):
     return (.5*(f.mExtents[0]+f.mExtents[1]),.5*(f.mExtents[2]+f.mExtents[3]) )
@@ -701,7 +702,7 @@ def mainEyeTrack():
     #crosshair.result = np.genfromtxt('1700wxoffsetyoffsetxy.csv',delimiter=',')
     with open("1700wxoffsetyoffsetxy.csv", "rb") as fp:   # Unpickling
         crosshair.result = pickle.load(fp)
-    vc = cv2.VideoCapture(0) # Initialize the default camera
+    vc = cv2.VideoCapture(1) # Initialize the default camera
     if vc.isOpened(): # try to get the first frame
         (readSuccessful, frame) = vc.read()
     else:
@@ -728,7 +729,7 @@ def mainEyeTrack():
                     gazeCoords = currentFeatures.dot(HT)
                     crosshair.drawCrossAt( (gazeCoords[0,0], gazeCoords[0,1]) )
 		    naive_dt = datetime.now()
-		    file.write("Gaze Coordinates: "+ str(gazeCoords[0,0]) + ", " + str(gazeCoords[0,1]) + " " + str(naive_dt) + "\n")
+		    file.write(str(gazeCoords[0,0]) + "," + str(gazeCoords[0,1]) + "," + str(naive_dt) + "\n")
             readSuccessful, frame = vc.read()
     
         crosshair.close()
@@ -743,13 +744,13 @@ if __name__ == '__main__':
 	print "Developed by: Peter Brine, Sam Fishman, and Bryan Jimenez-Rojas\n"
 	print "To run main program enter 1"
 	print "To run training program enter 2"
-	print "To run eye detection calibration enter 3"
-	choice = int(raw_input("Enter Choice: "))
-	if choice == 1:
+	print "To run eye detection calibration enter 3"	
+	#choice = int(raw_input("Enter Choice: "))choice = int(raw_input("Enter Choice: "))	
+	if sys.argv[1] == '1':
 		mainEyeTrack()
-	elif choice == 2:
+	elif sys.argv[1] == '2':
 		mainForTraining()
-	elif choice == 3:
+	elif sys.argv[1] == '3':
 		main()
 	else:
 		print "Invalid choice"
