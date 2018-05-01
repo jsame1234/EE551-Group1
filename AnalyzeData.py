@@ -46,8 +46,8 @@ for i in range(len(emote)):
     elif emote[i] == "surprised":
         emote[i] = 6
 
-N=6
-cpool = [ '#ffffff','#00ff00','#800080','#ffff00','#ff0000','#0000ff','#ffa500']
+N=7
+cpool = [ '#ffffff','#00ff00','#800080','#ffff00','#ff0000','#0000ff','#ffa500','#ffffff']
 cmapEmo = col.ListedColormap(cpool[0:N], 'indexed')
 
 #initialize plot
